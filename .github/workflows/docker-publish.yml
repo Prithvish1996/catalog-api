@@ -18,22 +18,22 @@ jobs:
       packages: write           # needed to push to ghcr.io
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+      - name: Lowercase owner
+        run: echo "OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile.catalog
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/catalog-api:latest
-            ghcr.io/${{ github.repository_owner }}/catalog-api:${{ github.sha }}
+            ghcr.io/${{ env.OWNER }}/catalog-api:latest
+            ghcr.io/${{ env.OWNER }}/catalog-api:${{ github.sha }}
